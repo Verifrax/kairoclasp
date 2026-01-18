@@ -1,0 +1,13 @@
+# KAIROCLASP LOG
+# Append-only temporal ledger
+# Records time-lock evaluations
+# Deletion breaks temporal continuity
+
+# Format:
+# ----------
+# TIME: <UTC ISO-8601>
+# REPO: <path>
+# COMMIT: <hash | UNCOMMITTED>
+# LOCK_AT: <declared UTC time>
+# NOW: <evaluation time>
+# ----------
