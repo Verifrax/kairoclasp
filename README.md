@@ -1,4 +1,15 @@
-# KAIROCLASP
+```
+PRIM-008
+KAIROCLASP
+Temporal finality
+
+STATUS: REGISTERED
+REGISTRY: https://speedkit.eu
+```
+
+Registered artifact. Identity governed by SPEEDKIT registry.
+
+---
 
 **KAIROCLASP v0.0.0** is a temporal finality primitive.
 
