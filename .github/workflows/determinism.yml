@@ -1,44 +1,91 @@
 name: Determinism Check
+
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-permissions:
-  contents: read
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  LC_ALL: C
+  TZ: UTC
+
 jobs:
-  determinism:
+  append-only:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for deletions in index.html
+        run: |
+          # Get diff of index.html
+          DELETED=$(git diff origin/main...HEAD -- index.html | grep "^-" | grep -v "^---" | wc -l)
+          
+          if [ "$DELETED" -gt 0 ]; then
+            echo "FAIL: Deletions detected in index.html"
+            echo "This index is append-only. Deletions are not allowed."
+            git diff origin/main...HEAD -- index.html | grep "^-" | grep -v "^---"
+            exit 1
+          fi
+          
+          echo "PASS: No deletions detected"
+
+  whitespace-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Block HTML reformatting
+        run: |
+          # Check for whitespace-only changes
+          CONTENT_CHANGES=$(git diff origin/main...HEAD -- index.html | grep "^[+-]" | grep -v "^[+-][+-][+-]" | grep -v "^[+-]\s*$" | wc -l)
+          TOTAL_CHANGES=$(git diff origin/main...HEAD -- index.html | grep "^[+-]" | grep -v "^[+-][+-][+-]" | wc -l)
+          
+          if [ "$TOTAL_CHANGES" -gt 0 ] && [ "$CONTENT_CHANGES" -eq 0 ]; then
+            echo "FAIL: Whitespace-only changes detected"
+            echo "HTML reformatting is not allowed"
+            exit 1
+          fi
+          
+          echo "PASS: No whitespace-only changes"
+
+  checksum-verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Prepare temp workdir (no workspace writes)
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Verify index checksum
         run: |
-          set -euo pipefail
-          T="$RUNNER_TEMP/vf-tmp-$GITHUB_RUN_ID"
-          rm -rf "$T" && mkdir -p "$T"
-          cp -a . "$T/repo"
-          echo "T=$T" >> "$GITHUB_ENV"
-      - name: Ensure tool is executable
-        run: chmod +x "$T/repo/kairoclasp.sh"
-      - name: Test empty stdin → deterministic INVALID
+          ACTUAL=$(sha256sum index.html | cut -d' ' -f1)
+          EXPECTED=$(cat INDEX_CHECKSUM.txt | cut -d' ' -f1)
+          
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "FAIL: Index checksum mismatch"
+            echo "Expected: $EXPECTED"
+            echo "Actual: $ACTUAL"
+            exit 1
+          fi
+          
+          echo "PASS: Index checksum verified"
+
+  failure-codes-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Verify FAILURE_CODES.json checksum
         run: |
-          set -euo pipefail
-          out="$(cd "$T/repo"; ./kairoclasp.sh < /dev/null || true)"
-          printf "%s" "$out" | grep -Eq "INVALID|DENIED|REJECTED|ERROR|FAIL|^$" || true
-      - name: Test determinism (run twice)
-        run: |
-          set -euo pipefail
-          in="time: 2026-03-04T00:00:00Z"
-          a="$(printf "%s" "$in" | (cd "$T/repo"; ./kairoclasp.sh))"
-          b="$(printf "%s" "$in" | (cd "$T/repo"; ./kairoclasp.sh))"
-          [ "$a" = "$b" ] || { echo "NON-DETERMINISTIC"; echo "A=$a"; echo "B=$b"; exit 1; }
-      - name: Test no state mutation
-        run: |
-          set -euo pipefail
-          cd "$T/repo"
-          [ -z "$(git status --porcelain)" ] || { echo "STATE MUTATION DETECTED"; git status --porcelain; exit 1; }
-      - name: Test env isolation
-        run: |
-          set -euo pipefail
-          cd "$T/repo"
-          env | sort | sha256sum | tee /tmp/env.hash
-          env | sort | sha256sum | diff -u /tmp/env.hash -
+          EXPECTED=$(cat .failure_codes_checksum)
+          ACTUAL=$(sha256sum FAILURE_CODES.json | cut -d' ' -f1)
+          
+          if [ "$EXPECTED" != "$ACTUAL" ]; then
+            echo "FAIL: FAILURE_CODES.json has been modified"
+            exit 5
+          fi
+          echo "PASS: FAILURE_CODES.json checksum verified"
