@@ -1,4 +1,3 @@
-```
 PRIM-008
 KAIROCLASP
 Temporal finality
