@@ -9,9 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify README identity (PRIM-008)
+
+      - name: Verify README identity (PRIM-003)
         shell: bash
         run: |
           set -euo pipefail
-          test -f README.md
-          head -n 1 README.md | grep -Eq "^PRIM-008$"
+          grep -q "^# KAIROCLASP$" README.md || { echo "FAIL: title missing"; exit 1; }
+          grep -q "^Primitive ID: PRIM-003" README.md || { echo "FAIL: PRIM-003 not found"; exit 1; }
+          grep -q "^Package: @verifrax/kairoclasp" README.md || { echo "FAIL: package line missing"; exit 1; }
+          grep -q "^Binary: kairoclasp" README.md || { echo "FAIL: binary line missing"; exit 1; }
+          echo "PASS: PRIM-003 identity verified"
