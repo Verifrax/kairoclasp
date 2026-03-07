@@ -2,22 +2,20 @@ name: Identity
 
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
-  workflow_dispatch: {}
-
-env:
-  LC_ALL: C
-  TZ: UTC
 
 jobs:
-  identity:
+  verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      - name: Identity marker
+      - uses: actions/checkout@v4
+
+      - name: Verify README identity (PRIM-003)
         shell: bash
         run: |
           set -euo pipefail
-          echo "identity: ok"
+          grep -q "^# KAIROCLASP$" README.md || { echo "FAIL: title missing"; exit 1; }
+          grep -q "^Primitive ID: PRIM-003" README.md || { echo "FAIL: PRIM-003 not found"; exit 1; }
+          grep -q "^Package: @verifrax/kairoclasp" README.md || { echo "FAIL: package line missing"; exit 1; }
+          grep -q "^Binary: kairoclasp" README.md || { echo "FAIL: binary line missing"; exit 1; }
+          echo "PASS: PRIM-003 identity verified"
