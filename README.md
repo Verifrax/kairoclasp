@@ -1,206 +1,147 @@
-PRIM-008
-KAIROCLASP
-Temporal finality
+# KAIROCLASP
 
-STATUS: REGISTERED
-REGISTRY: https://speedkit.eu
-SNAPSHOT: https://speedkit.eu/REGISTRY_SNAPSHOT.json
-```
+Primitive ID: PRIM-003  
+Package: @verifrax/kairoclasp  
+Binary: kairoclasp
 
-Registered artifact. Identity governed by SPEEDKIT registry.
-
-STATUS: FINAL
+Verifrax primitive — time boundary primitive for deterministic irreversible systems.
 
 ---
 
-**KAIROCLASP v0.0.0** is a temporal finality primitive.
+## Status
 
-It does not decide.
-It does not verify.
-It does not witness.
-It does not execute.
-It does not judge.
-It does not enforce custody.
+Current release status: pre-stable primitive release line.
 
-It **locks time**.
+Canonical release target:
 
-KAIROCLASP exists to bind an action, claim, or state to a moment that cannot be replayed, deferred, or reinterpreted later.
+package version: 0.1.0  
+tag: v0.1.0
+
+KAIROCLASP is part of the Verifrax primitive layer and follows the canonical primitive governance, naming, version, and packaging rules.
 
 ---
 
-## Philosophy
+## Purpose
 
-Many failures are not about *what* happened.
-They are about *when* it is claimed to have happened.
+KAIROCLASP fixes deterministic temporal boundary after origin and custody are already established.
 
-Deadlines slip.
-Timelines are rewritten.
-Moments are retroactively reframed.
+Once an artifact has a stable origin and preserved custody, time must become bounded in a way that downstream primitives can evaluate without ambiguity. KAIROCLASP exists to make that temporal boundary explicit, deterministic, and non-drifting.
 
-KAIROCLASP exists to answer one question only:
-
-> **Is this moment still valid, or has it expired?**
-
-Once time is clasped, the window closes.
+It does not establish origin. It does not preserve custody. It does not verify correctness. It does not witness, judge, or terminate. Its role is narrower: fix temporal boundary conditions for downstream interpretation.
 
 ---
 
-## What KAIROCLASP Is
+## What This Primitive Does
 
-KAIROCLASP is a **temporal boundary primitive**.
-
-It binds:
-
-* Declared UTC time (via `stdin`)
-* Repository identity
-* Commit context
-* Evaluation timestamp
-
-Into a single, irreversible temporal record.
-
-The result is **temporal finality**.
+- binds an artifact to a deterministic time-boundary surface
+- preserves explicit temporal boundary conditions for downstream primitives
+- emits time-bound output suitable for later verification and judgment
 
 ---
 
-## What It Is Not
+## What This Primitive Does Not Do
 
-* Not a scheduler
-* Not a cron system
-* Not a deadline manager
-* Not a clock source
-* Not a validator
-* Not a judge
-
-KAIROCLASP does not manage time.
-It **eliminates ambiguity about time**.
+- does not establish first origin
+- does not preserve custody continuity
+- does not verify correctness
+- does not witness or attest
+- does not judge validity
+- does not terminate lifecycle
 
 ---
 
-## Behavior
+## Behavioral Contract
 
-* Consumes temporal declarations exclusively via `stdin`
-* Refuses silent invocation
-* Requires an explicit ISO‑8601 UTC timestamp
-* Allows sealing exactly once per repository
-* Appends a single irreversible record to a temporal ledger
-* Emits exactly one verdict
-* Exits immediately after evaluation
+Invocation model:
 
-No retries.
-No flags.
-No configuration.
+executable: kairoclasp  
+package: @verifrax/kairoclasp  
+runtime: CLI-first
 
----
+The primitive operates on an artifact whose origin and custody surfaces are already fixed.
 
-## Verdicts
+If temporal boundary conditions are absent, ambiguous, or non-deterministic, KAIROCLASP must not fabricate a stable time state.
 
-KAIROCLASP emits exactly one of the following:
+Exit codes:
 
-* `CLASPED` — the declared moment is valid and has been irreversibly locked
-* `EXPIRED` — a temporal clasp already exists and cannot be repeated
-* `DENIED` — the time declaration is missing, malformed, ambiguous, or refers to a future moment
-
-The verdict concerns **temporal validity**, not correctness.
+0 — time boundary fixed successfully  
+non-zero — invocation failed or contract violated
 
 ---
 
 ## Usage
 
-KAIROCLASP is never run casually.
-It is invoked only when timing matters irreversibly.
+Install:
 
-```sh
-<utc-timestamp> | ./kairoclasp.sh
-```
+npm install -g @verifrax/kairoclasp
 
-### Example
+Execute:
 
-```sh
-echo "2026-01-18T11:30:00Z" | ./kairoclasp.sh
-```
+kairoclasp artifact.json
 
-If the moment is valid and unclasped:
+stdin example:
 
-```text
-CLASPED
-```
-
-If a clasp already exists:
-
-```text
-EXPIRED
-```
-
-If the timestamp is invalid or in the future:
-
-```text
-DENIED
-```
+cat artifact.json | kairoclasp
 
 ---
 
-## Contract
+## Determinism Guarantees
 
-Once time is clasped:
+For identical canonical input, KAIROCLASP must produce identical time-boundary output.
 
-* The moment cannot be reused
-* Later reinterpretation is invalid
-* Deadlines become enforceable facts
-* Disputes shift from timing to responsibility
+No hidden environmental state may influence the result.
 
-KAIROCLASP guarantees **no temporal ambiguity**.
+KAIROCLASP assumes an already-bounded origin and custody surface and does not substitute for those earlier primitives or for downstream verification and judgment.
 
 ---
 
-## Relationship to Other Artifacts
+## Security Model
 
-* **GUILLOTINE** — executes
-* **IRREVOCULL** — judges
-* **ATTESTORIUM** — witnesses
-* **VALIDEXOR** — verifies
-* **LIMENWARD** — guards transitions
-* **ORIGINSEAL** — seals origin
-* **ARCHICUSTOS** — guards custody
-* **KAIROCLASP** — locks time
+KAIROCLASP protects against ambiguity in temporal boundary assignment.
 
-Each artifact covers exactly one irreversible dimension.
-None overlap.
+Its security value is to prevent silent drift in the time-bound interpretation of an artifact after origin and custody are fixed. It does not guarantee correctness, attestation, or irreversible judgment.
 
 ---
 
-## Warning
+## Relationship to Other Primitives
 
-Time creates accountability.
+Canonical primitive order:
 
-Invoking KAIROCLASP declares:
+1 originseal  
+2 archicustos  
+3 kairoclasp  
+4 limenward  
+5 validexor  
+6 attestorium  
+7 irrevocull  
+8 guillotine
 
-* "This moment matters"
-* "Delay is no longer acceptable"
-* "I accept the consequences of now"
+Repositories:
 
-There is no appeal after time.
+https://github.com/Verifrax/originseal  
+https://github.com/Verifrax/archicustos  
+https://github.com/Verifrax/kairoclasp  
+https://github.com/Verifrax/limenward  
+https://github.com/Verifrax/validexor  
+https://github.com/Verifrax/attestorium  
+https://github.com/Verifrax/irrevocull  
+https://github.com/Verifrax/guillotine
 
 ---
 
-## About
+## Installation
 
-KAIROCLASP is a minimal, deterministic temporal finality primitive for irreversible systems.
+npm install -g @verifrax/kairoclasp
 
-If timing does not matter, do not use it.
-If it does, nothing else is sufficient.
+command -v kairoclasp
+
+Repository:
+- GitHub: https://github.com/Verifrax/kairoclasp
+- Package: @verifrax/kairoclasp
+- Binary: kairoclasp
 
 ---
 
-## Responsibility Boundary
+## License
 
-This software is provided under the MIT License.
-
-The MIT License permits use, copying, modification, and redistribution of the code, but it does not provide assurance, certification, audit defense, operational guarantees, or liability coverage.
-
-Use of this software in environments where failure, compliance, legal exposure, or irreversible decisions matter requires an accountable party.
-
-The original maintainer is available for assurance, adaptation, and responsibility when such accountability is required.
-
-Contact: contact@speedkit.eu
-
-Authoritative signed records are issued separately and are not produced by the software.
+MIT
