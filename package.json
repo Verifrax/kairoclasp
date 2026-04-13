@@ -1,8 +1,8 @@
 {
   "name": "@verifrax/kairoclasp",
   "version": "0.1.0",
-  "description": "Verifrax primitive — time boundary primitive for deterministic irreversible systems.",
-  "license": "MIT",
+  "description": "Verifrax primitive \u2014 time boundary primitive for deterministic irreversible systems.",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Verifrax/kairoclasp.git"
