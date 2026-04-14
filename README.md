@@ -1,5 +1,9 @@
 # KAIROCLASP
 
+Package: @verifrax/kairoclasp
+Binary: kairoclasp
+Repository: Verifrax/kairoclasp
+
 Primitive ID: PRIM-003
 Package: @verifrax/kairoclasp
 Binary: kairoclasp
